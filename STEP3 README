@@ -1,0 +1,184 @@
+-----------------------------------------------------------------
+//  EXAM GUIDES — MongoDB Collection Definitions
+//  Author: Sebastian Eugene
+//  Project: Exam Guides (Study Resource Platform)
+//
+//  DESIGN DECISIONS
+//
+//  1. There are 3 main collections: Account, Resource, Topic
+//
+//  2. Student, Professor, Researcher are not separate collections.
+//     They share a lot of their fields (account_ID, first_name, etc.)
+//     so they are collapsed into Account using a "role" filter
+//     This avoids extra collections and simpiflies our queries
+//
+//  3. Videos and Practice are not separate collections.
+//     They are embedded subdocuments inside Resource, 
+//     used with the gate field
+//     This is because they cannot exist without
+//     a parent Resource — they have no meaning on their own (composition).
+//
+//  4. Topic is its own collection (not embedded in Resource)
+//     because many resources share the same Topic. Embedding
+//     would cause unnecessary data duplication
+//
+//  5. Relationships (Studies, Completes, Watches, Reviews, Inputs)
+//     are stored as reference arrays inside the owning document.
+//
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+//  COLLECTION 1: Account
+//  Root collection. All user types live here
+//  Role field determines which optional fields are present
+//  Relationships are stored as FK references
+-----------------------------------------------------------------
+
+// -- A: Student account --
+{
+  "_id": "acc_001",                 // PK — use ObjectId in production
+  "first_name": "Sebastian",
+  "last_name": "Eugene",
+  "email": "s.eugene@neu.edu",
+  "password": "hashed_bcrypt_value", //always hash
+
+  "role": "Student",           // this decides which fields are present "Student" | "Professor" | "Researcher"
+
+  // Student-only fields (only present when role = "Student")
+  "study": "Computer Science",
+  "enrollment_date": "2023-09-01",
+
+  // Relationship arrays — stored here to avoid looping arrows back to root
+  "studied_topics": ["top_001", "top_002"],          // FK[] -> Topic
+  "completed_practices": ["res_002"],                // FK[] -> Resource (type=Practice)
+  "watched_videos": ["res_001"],                     // FK[] -> Resource (type=Video)
+  "reviewed_resources": ["res_001", "res_003"]       // FK[] -> Resource (any type)
+}
+
+// -- B: Professor account --
+{
+  "_id": "acc_002",
+  "first_name": "Maria",
+  "last_name": "Santos",
+  "email": "m.santos@neu.edu",
+  "password": "hashed_bcrypt_value",
+
+  "role": "Professor",
+
+  // Professor-only fields (only present when role = "Professor")
+  "teaching": "Databases",
+  "college": "Khoury College",
+
+  // Professors input (contribute) resources — stored as reference array
+  "inputted_resources": ["res_001", "res_002"]       // FK[] -> Resource
+}
+
+// -- C: Researcher account --
+{
+  "_id": "acc_003",
+  "first_name": "James",
+  "last_name": "Park",
+  "email": "j.park@neu.edu",
+  "password": "hashed_bcrypt_value",
+
+  "role": "Researcher",
+
+  // Researcher-only fields (only present when role = "Researcher")
+  "study": "Machine Learning",
+  "country": "South Korea",
+
+  "inputted_resources": ["res_003"]                  // FK[] -> Resource
+}
+
+
+-----------------------------------------------------------------
+//  COLLECTION 2: Resource
+//  Central content collection. The "type" field determines
+//  which subdocument is embedded. topic_ID and account_ID
+//  are foreign keys referencing Topic and Account.
+//
+//  NOTE: Only one subdocument (video OR practice) will be
+//  present per document — never both. Text type has neither.
+-----------------------------------------------------------------
+
+// -- Example A: Video resource --
+{
+  "_id": "res_001",
+  "title": "Introduction to SQL Joins",
+  "type": "Video",                     // "Video" | "Text" | "Practice"
+  "topic_ID": "top_001",               // FK -> Topic collection
+  "account_ID": "acc_002",             // FK -> Account (the creator)
+
+  // Embedded subdocument — solid line in ERD.
+  // Only present when type = "Video".
+  // previous_video_ID supports a series/playlist structure.
+  "video": {
+    "description": "Covers INNER, LEFT, and RIGHT joins with examples",
+    "length": "14:32",
+    "previous_video_ID": null          // FK -> res_ID of prior video, null if first
+  }
+}
+
+// -- Example B: Practice resource --
+{
+  "_id": "res_002",
+  "title": "SQL Joins Practice Set",
+  "type": "Practice",
+  "topic_ID": "top_001",
+  "account_ID": "acc_002",
+
+  // Embedded subdocument — solid line in ERD.
+  // Only present when type = "Practice".
+  "practice": {
+    "length": "Medium",                // "Short" | "Medium" | "Long"
+    "amount_questions": 10
+  }
+}
+
+// -- Example C: Text resource --
+{
+  "_id": "res_003",
+  "title": "SQL Joins Cheat Sheet",
+  "type": "Text",
+  "topic_ID": "top_001",
+  "account_ID": "acc_003"
+  // No subdocument for Text type — title and topic are sufficient
+}
+
+
+-----------------------------------------------------------------
+//  COLLECTION 3: Topic
+//  Independent reference collection. Not embedded in Resource
+//  because many resources share the same topic — embedding
+//  would require duplicating topic data across every resource.
+//  Resources point TO topics via topic_ID FK.
+-----------------------------------------------------------------
+
+// -- Example A --
+{
+  "_id": "top_001",
+  "name": "SQL Joins",
+  "level": "Intermediate",             // "Beginner" | "Intermediate" | "Expert"
+  "subject": "Math"                    // "Math" | "Biology" | "Physics"
+}
+
+// -- Example B --
+{
+  "_id": "top_002",
+  "name": "Derivatives",
+  "level": "Beginner",
+  "subject": "Math"
+}
+
+
+-----------------------------------------------------------------
+//  RECOMMENDED INDEXES
+//  Create these after importing data for querys
+-----------------------------------------------------------------
+
+db.Resource.createIndex({ topic_ID: 1 })             // topic lookups
+db.Resource.createIndex({ account_ID: 1 })           // creator lookups
+db.Resource.createIndex({ type: 1 })                 // type filtering
+db.Account.createIndex({ email: 1 }, { unique: true }) // unique emails
+db.Account.createIndex({ role: 1 })                  // role filtering
