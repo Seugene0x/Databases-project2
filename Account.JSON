@@ -1,0 +1,47 @@
+{
+  "_id": "acc_001",               
+  "first_name": "Sebastian",
+  "last_name": "Eugene",
+  "email": "s.eugene@neu.edu",
+  "password": "hashed_bcrypt_value",
+
+  "role": "Student",          
+
+  "study": "Computer Science",
+  "enrollment_date": "2023-09-01",
+
+  "studied_topics": ["top_001", "top_002"],      
+  "completed_practices": ["res_002"],               
+  "watched_videos": ["res_001"],                    
+  "reviewed_resources": ["res_001", "res_003"]       
+}
+
+{
+  "_id": "acc_002",
+  "first_name": "Maria",
+  "last_name": "Santos",
+  "email": "m.santos@neu.edu",
+  "password": "hashed_bcrypt_value",
+
+  "role": "Professor",
+
+  "teaching": "Databases",
+  "college": "Khoury College",
+
+  "inputted_resources": ["res_001", "res_002"]
+}
+
+{
+  "_id": "acc_003",
+  "first_name": "James",
+  "last_name": "Park",
+  "email": "j.park@neu.edu",
+  "password": "hashed_bcrypt_value",
+
+  "role": "Researcher",
+
+  "study": "Machine Learning",
+  "country": "South Korea",
+
+  "inputted_resources": ["res_003"]
+}

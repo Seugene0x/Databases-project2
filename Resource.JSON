@@ -1,0 +1,35 @@
+{
+  "_id": "res_001",
+  "title": "Introduction to SQL Joins",
+  "type": "Video",
+  "topic_ID": "top_001",
+  "account_ID": "acc_002",             
+
+  "video": {
+    "description": "Covers INNER, LEFT, and RIGHT joins with examples",
+    "length": "14:32",
+    "previous_video_ID": null          
+  }
+}
+
+{
+  "_id": "res_002",
+  "title": "SQL Joins Practice Set",
+  "type": "Practice",
+  "topic_ID": "top_001",
+  "account_ID": "acc_002",
+
+  "practice": {
+    "length": "Medium",
+    "amount_questions": 10
+  }
+}
+
+
+{
+  "_id": "res_003",
+  "title": "SQL Joins Cheat Sheet",
+  "type": "Text",
+  "topic_ID": "top_001",
+  "account_ID": "acc_003"
+}
