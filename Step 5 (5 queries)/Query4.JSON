@@ -1,0 +1,9 @@
+
+{
+  "updateOne": {
+    "filter": { "_id": { "$oid": "USER_ID_HERE" } },
+    "update": [
+      { "$set": { "active": { "$not": "$active" } } }
+    ]
+  }
+}

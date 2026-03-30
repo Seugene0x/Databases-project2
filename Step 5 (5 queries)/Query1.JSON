@@ -1,0 +1,21 @@
+{
+  "aggregate": "Resource",
+  "pipeline": [
+    {
+      "$lookup": {
+        "from": "Account",
+        "localField": "account_ID",
+        "foreignField": "_id",
+        "as": "creator"
+      }
+    },
+    { "$unwind": "$creator" },
+    {
+      "$group": {
+        "_id": "$account_ID",
+        "account_name": { "$first": "$creator.first_name" },
+        "total_resources": { "$sum": 1 }
+      }
+    }
+  ]
+}

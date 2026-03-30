@@ -1,0 +1,9 @@
+{
+  "find": "Resource",
+  "filter": {
+    "$or": [
+      { "$and": [ { "type": "Video" }, { "topic_ID": "top_001" } ] },
+      { "type": "Practice" }
+    ]
+  }
+}
