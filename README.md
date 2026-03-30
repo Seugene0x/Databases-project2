@@ -67,6 +67,12 @@ Dashed lines are references
 
 Purple lines are logical relationships
 
+## ERRORS
+
+I misspelled topic_ID   its topid_ID with a d instead of a c (dumb mistake) :(
+
+so if you arent able to run the queries this is most definitely why.
+
 
 
 
